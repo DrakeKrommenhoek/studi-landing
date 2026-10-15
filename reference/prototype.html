@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studi prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desk:#6A5843; --desk-deep:#54463A; --on-desk:#FFF6EC; --on-desk-soft:#E6D5C1;
+  --cover:#B65E3C; --cover-deep:#8E4529; --on-cover:#FFF4EA;
+  --paper:#FCEEE4; --paper-2:#EBD3C2; --slip:#FFFAF2;
+  --ink:#4A2422; --ink-soft:#7D574E; --rule:#C2463A;
+  --stamp:#5747A6; --note:#F3E7B2; --tape:rgba(215,150,138,.8);
+  --focus:#F3C94B;
+  --hand:"Patrick Hand","Bradley Hand","Segoe Print","Comic Sans MS",cursive;
+  --type:"Courier Prime","Courier New",Courier,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --desk:#251E18; --desk-deep:#1A1511; --on-desk:#F4E9DB; --on-desk-soft:#C2B19D;
+    --cover:#9A4E32; --cover-deep:#6E351F; --on-cover:#FCEFE2;
+    --paper:#EADBCB; --paper-2:#CDB8A4; --slip:#F2E6D8;
+    --stamp:#5546A0; --note:#E4D69E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --desk:#251E18; --desk-deep:#1A1511; --on-desk:#F4E9DB; --on-desk-soft:#C2B19D;
+  --cover:#9A4E32; --cover-deep:#6E351F; --on-cover:#FCEFE2;
+  --paper:#EADBCB; --paper-2:#CDB8A4; --slip:#F2E6D8;
+  --stamp:#5546A0; --note:#E4D69E;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%;background:var(--desk)}
+body{height:100%;margin:0;background:var(--desk);color:var(--on-desk);font-family:var(--hand);font-size:18px;line-height:1.35;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.paper :focus-visible,.page :focus-visible,.slip :focus-visible{outline-color:var(--stamp)}
+
+#app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.phone{position:relative;width:100%;max-width:440px;height:100%;overflow:hidden;display:flex;flex-direction:column;background:var(--desk);isolation:isolate}
+.caption{display:none;margin:16px 0 0;color:var(--on-desk-soft);font-size:16px;text-align:center;padding:0 16px}
+@media (min-width:760px) and (min-height:720px){
+  .phone{height:min(calc(100% - 90px),860px);border-radius:34px;box-shadow:0 0 0 9px var(--desk-deep),0 40px 80px -30px rgba(0,0,0,.7)}
+  .caption{display:block}
+}
+#screen{flex:1;display:flex;flex-direction:column;min-height:0}
+.screen{flex:1;display:flex;flex-direction:column;min-height:0;padding:12px 16px 16px;gap:12px}
+
+.bar{display:flex;align-items:center;justify-content:space-between;min-height:42px}
+.wordmark{font-size:32px;line-height:1;color:var(--on-desk)}
+.wordmark.small{font-size:26px}
+.hi{color:var(--on-desk-soft);font-size:19px}
+.back{background:none;border:0;color:var(--on-desk);font-size:19px;padding:6px 8px;margin-left:-8px;cursor:pointer;border-radius:8px}
+
+/* Book and paper */
+.bookwrap{flex:1;min-height:0;display:flex;flex-direction:column}
+.book{position:relative;flex:1;min-height:0;background:var(--cover);border-radius:8px 14px 14px 8px;box-shadow:0 18px 30px -18px rgba(0,0,0,.65)}
+.paper,.page{position:absolute;top:8px;left:9px;right:18px;bottom:10px;color:var(--ink);border-radius:2px 8px 8px 2px;background:linear-gradient(90deg,rgba(74,36,34,.16),rgba(74,36,34,0) 24px),var(--paper)}
+.paper{overflow:auto;padding:22px 20px 16px 30px;display:flex;flex-direction:column;box-shadow:2px 0 0 var(--paper-2),4px 0 0 var(--paper),6px 0 0 var(--paper-2),8px 0 0 var(--paper)}
+.book-app{border-top-left-radius:0;border-top-right-radius:0}
+.book-app .paper,.book-app .page{top:0;border-top-right-radius:0}
+.tabs{display:flex;gap:4px;padding:0 18px 0 9px}
+.tab{flex:1;font-size:17px;line-height:1.1;padding:9px 6px 8px;border:0;border-radius:10px 10px 0 0;background:rgba(255,246,236,.13);color:var(--on-desk);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--paper);color:var(--ink)}
+
+.h{font-size:32px;line-height:1.05;margin:0 0 6px;font-weight:400;color:var(--ink)}
+.h2{font-size:22px;margin:18px 0 8px;font-weight:400;color:var(--ink)}
+.sub{color:var(--ink-soft);margin:0 0 14px;font-size:18px}
+.sub.small{font-size:17px;margin-top:14px}
+.typed{font-family:var(--type);font-size:.85em;color:var(--ink)}
+.lab{display:block;font-size:19px;margin:16px 0 8px;color:var(--ink)}
+.field{width:100%;font-family:var(--type);font-size:17px;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink-soft);padding:8px 2px;border-radius:0}
+.field::placeholder{color:var(--ink-soft);opacity:.55}
+.field:focus{outline:none;border-bottom-color:var(--stamp);box-shadow:0 2px 0 var(--stamp)}
+select.field{appearance:none;-webkit-appearance:none;padding-right:26px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%237D574E' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center}
+select.field option{color:#4A2422;background:#FCEEE4}
+.code-field{font-size:30px;letter-spacing:.45em;max-width:250px;padding-left:4px}
+.err{min-height:22px;margin:8px 0 0;color:var(--rule);font-size:17px}
+.hint-in{margin:8px 0 0;color:var(--ink-soft);font-size:16px}
+.addrow{display:flex;gap:10px;align-items:flex-end;margin-top:18px}
+.addrow .field{flex:1;min-width:0}
+.add-btn{font-size:18px;padding:9px 16px 10px;flex:none}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:18px;line-height:1.15;color:var(--ink);background:transparent;border:2px solid var(--ink-soft);padding:5px 13px 6px;border-radius:255px 18px 225px 18px/18px 225px 18px 255px;cursor:pointer;text-align:left}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip .code{display:block;font-family:var(--type);font-size:12.5px;opacity:.75;margin-bottom:1px}
+
+.note{position:relative;background:var(--note);color:var(--ink);padding:11px 14px 11px;font-size:18px;line-height:1.25;transform:rotate(-1deg);box-shadow:0 6px 12px -8px rgba(60,30,10,.5);margin-top:16px}
+.note::before{content:"";position:absolute;top:-9px;left:50%;width:62px;height:18px;margin-left:-31px;background:var(--tape);transform:rotate(3deg)}
+.folio{margin-top:auto;padding-top:14px;text-align:right;color:var(--ink-soft);font-size:16px}
+
+/* Buttons */
+.actions{display:flex;flex-direction:column;gap:6px}
+.btn{font-size:21px;line-height:1.1;border:0;cursor:pointer;padding:12px 20px 13px;border-radius:255px 16px 225px 16px/16px 225px 16px 255px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-wide{width:100%}
+.btn-primary{background:var(--note);color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.28)}
+.btn-primary:active:not(:disabled),.btn-stamp:active,.btn-ink:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.btn-ghost{background:transparent;color:var(--on-desk);border:2px solid var(--on-desk-soft)}
+.btn-ghost-ink{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn-stamp{background:var(--stamp);color:#FFFDF8;box-shadow:0 3px 0 rgba(0,0,0,.32)}
+.btn-ink{background:var(--ink);color:var(--paper);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.link{align-self:center;background:none;border:0;color:var(--on-desk-soft);font-size:16px;text-decoration:underline;text-underline-offset:3px;padding:6px;cursor:pointer}
+
+/* Welcome cover */
+.welcome{padding-top:26px}
+.welcome-mid{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.cover-book{position:relative;height:min(100%,430px);aspect-ratio:3/4;max-width:82%;background:var(--cover);border-radius:6px 16px 16px 6px;display:flex;flex-direction:column;align-items:center;padding:28px 18px 22px 30px;color:var(--on-cover);box-shadow:inset 12px 0 0 rgba(0,0,0,.14),inset 14px 0 0 rgba(255,255,255,.07),4px 4px 0 var(--paper-2),7px 7px 0 var(--paper),0 30px 40px -24px rgba(0,0,0,.7)}
+.plate{background:var(--paper);color:var(--ink);padding:8px 22px 10px;border-radius:4px;text-align:center;box-shadow:inset 0 0 0 2px var(--cover-deep)}
+.plate-title{font-size:54px;line-height:.95}
+.plate-sub{font-size:15px;color:var(--ink-soft);margin-top:4px;line-height:1.15}
+.owl{display:block;width:42%;margin:auto 0 8px}
+.cover-tag{margin:0;font-size:21px;text-align:center}
+
+/* Deck */
+.deck{position:absolute;inset:0;perspective:1700px}
+.page{touch-action:pan-y;user-select:none;-webkit-user-select:none;transform-origin:left center;backface-visibility:hidden;-webkit-backface-visibility:hidden;cursor:grab}
+.page.top{z-index:2}
+.page.under{z-index:1;box-shadow:2px 0 0 var(--paper-2),4px 0 0 var(--paper),6px 0 0 var(--paper-2),8px 0 0 var(--paper)}
+.page.under .stamp{display:none}
+.face{position:absolute;inset:0;overflow:auto;padding:18px 18px 14px 28px;display:flex;flex-direction:column;border-radius:inherit}
+.shade{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(40,20,10,0),rgba(40,20,10,.5));opacity:0;pointer-events:none}
+.pg-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--type);font-size:14px;color:var(--ink-soft)}
+.pg-course{font-size:18px;color:var(--ink-soft);margin-top:2px}
+.pg-title{font-size:31px;line-height:1.05;margin:4px 0 0;font-weight:400;color:var(--ink)}
+.rule{border:0;height:2px;background:var(--rule);margin:12px 0;opacity:.85}
+.facts{display:grid;grid-template-columns:84px 1fr;gap:7px 10px;margin:0}
+.facts dt{font-size:17px;color:var(--ink-soft);line-height:1.2}
+.facts dd{margin:0;font-family:var(--type);font-size:15px;line-height:1.4;color:var(--ink)}
+.margin-note{font-size:20px;line-height:1.15;color:var(--stamp);transform:rotate(-2deg);margin:14px 0 0}
+.margin-note b{font-weight:400;font-size:26px}
+.seats{display:inline-flex;gap:4px}
+.seats i{display:block;width:11px;height:11px;border-radius:50%;border:1.6px solid var(--ink-soft)}
+.seats i.on{background:var(--ink);border-color:var(--ink)}
+.end-face{align-items:center;justify-content:center;text-align:center;gap:8px}
+.end-face .owl{color:var(--ink);width:96px;margin:0 0 4px}
+.end-face .sub{max-width:260px}
+.deck-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.hint{margin:-2px 0 0;text-align:center;color:var(--on-desk-soft);font-size:15px}
+
+/* Stamps and slips */
+.stamp{position:absolute;right:16px;top:58px;border:4px double var(--stamp);color:var(--stamp);font-family:var(--type);font-weight:700;font-size:24px;letter-spacing:2px;padding:6px 12px 4px;border-radius:6px;text-align:center;line-height:1.05;transform:rotate(-12deg);opacity:0;pointer-events:none;mix-blend-mode:multiply;z-index:3}
+.stamp small{display:block;font-size:12px;letter-spacing:1.5px}
+.stamp.inflow{position:relative;display:inline-block;top:auto;right:auto;align-self:flex-start;margin:16px 0 2px 6px}
+.stamp.slam{animation:slam .4s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes slam{0%{opacity:0;transform:rotate(-12deg) scale(1.7)}60%{opacity:.95;transform:rotate(-12deg) scale(.94)}100%{opacity:.92;transform:rotate(-12deg) scale(1)}}
+.slip{position:relative;display:flex;flex-direction:column;background:var(--slip);color:var(--ink);border-radius:3px;padding:18px 16px 16px;margin:12px 0 4px;box-shadow:0 10px 20px -14px rgba(60,30,10,.6);transform:rotate(-1.2deg);background-image:repeating-linear-gradient(180deg,transparent 0 25px,rgba(90,120,170,.16) 25px 26px)}
+.slip .tape{position:absolute;top:-10px;left:22px;width:70px;height:20px;background:var(--tape);transform:rotate(-4deg)}
+.slip-top{display:flex;justify-content:space-between;font-family:var(--type);font-size:14px;color:var(--ink-soft)}
+.slip-name{font-size:28px;line-height:1.1;margin-top:6px}
+.slip-line{font-family:var(--type);font-size:15px;line-height:1.45;margin:0 0 10px}
+
+/* Shelf */
+.mini{background:var(--slip);border-left:3px solid var(--rule);padding:10px 12px;margin-bottom:10px;border-radius:2px 4px 4px 2px;box-shadow:0 6px 12px -10px rgba(60,30,10,.6)}
+.mini-t{font-size:20px;line-height:1.15}
+.mini-l{font-family:var(--type);font-size:14px;color:var(--ink-soft);margin-top:3px;line-height:1.4}
+.mini-s{font-family:var(--type);font-size:14px;font-weight:700;margin-top:6px;color:var(--stamp)}
+.empty{font-family:var(--type);font-size:15px;line-height:1.4;color:var(--ink-soft);margin:0 0 6px}
+.reset{margin-top:20px;font-size:18px}
+
+/* Overlay and toast */
+.overlay{position:absolute;inset:0;z-index:50;background:rgba(30,22,16,.62);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .2s ease}
+.overlay .slip{width:100%;max-width:370px;padding:24px 18px 18px;transform:rotate(-.8deg)}
+.overlay .facts dd{font-size:14.5px}
+.pilot{font-size:15px;color:var(--ink-soft);margin:10px 0 0;line-height:1.25}
+.ov-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.ov-actions .btn{font-size:18px;padding:11px 10px}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.toast{position:absolute;left:50%;bottom:118px;transform:translate(-50%,16px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:17px;line-height:1.2;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;width:max-content;max-width:86%;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* Page turn for onboarding */
+.turning{transform-origin:left center;animation:turn .6s cubic-bezier(.4,.1,.3,1) forwards;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden !important}
+.turning::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(30,15,8,0),rgba(30,15,8,.45));animation:fade .6s ease forwards;pointer-events:none}
+@keyframes turn{from{transform:perspective(1500px) rotateY(0)}to{transform:perspective(1500px) rotateY(-180deg)}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="phone" id="phone">
+    <div id="screen"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+  <p class="caption">Studi clickable prototype for BUS 3340. Drag the pages, tap the buttons, or use the arrow keys.</p>
+</div>
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s);
+const phone=$('#phone'), screenEl=$('#screen'), toastEl=$('#toast');
+const reduceMotion=()=>!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const now=new Date();
+const DATE=MON[now.getMonth()]+' '+now.getDate()+' '+now.getFullYear();
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+
+const OWL='<svg class="owl" viewBox="0 0 120 132" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M31 42 C27 28 31 18 37 12 C42 22 47 28 53 30 C58 28 62 28 67 30 C73 28 78 22 83 12 C89 18 93 28 89 42 C99 60 97 88 90 102 C82 118 70 122 60 122 C50 122 38 118 30 102 C23 88 21 60 31 42 Z"/><circle cx="46" cy="54" r="13"/><circle cx="74" cy="54" r="13"/><path d="M59 54 h2"/><circle cx="47" cy="56" r="4.6" fill="currentColor" stroke="none"/><circle cx="73" cy="56" r="4.6" fill="currentColor" stroke="none"/><path d="M55 67 L60 75 L65 67 Z"/><path d="M34 80 C38 96 46 104 54 107"/><path d="M86 80 C82 96 74 104 66 107"/><path d="M52 88 q3 3 6 0 M62 88 q3 3 6 0 M57 96 q3 3 6 0"/><path d="M50 122 v6 M56 122 v6 M64 122 v6 M70 122 v6"/></svg>';
+
+const COURSES=[
+  {id:'BUS3340',code:'BUS 3340',name:'Design Thinking'},
+  {id:'ECON2011',code:'ECON 2011',name:'Macroeconomic Theory'},
+  {id:'ECON2003',code:'ECON 2003',name:'Econometrics'},
+  {id:'LOGIC',code:'PHIL',name:'Intro Logic'},
+  {id:'MICRO',code:'ECON',name:'Principles of Micro'},
+  {id:'ACCT',code:'ACCT',name:'Financial Accounting'},
+  {id:'CALC',code:'MATH',name:'Calculus I'},
+  {id:'CHEM',code:'CHEM',name:'General Chemistry'},
+  {id:'BIOL',code:'BIOL',name:'Intro Biology'},
+  {id:'CSCI',code:'CSCI',name:'Intro to Programming'},
+  {id:'PSYC',code:'PSYC',name:'Intro Psychology'}
+];
+const course=id=>COURSES.find(c=>c.id===id)||((typeof S!=='undefined'&&S&&S.custom)?S.custom.find(c=>c.id===id):undefined);
+const MAJORS=['Accounting','Biology','Business Administration','Chemistry','Computer Science','Economics','English','Environmental Studies','History','Journalism','Mathematics','Neuroscience','Philosophy','Physics','Politics','Psychology','Undeclared'];
+const MINORS=['None','Computer Science','Economics','Entrepreneurship','Environmental Studies','Mathematics','Philosophy','Poverty and Human Capability Studies','Spanish','Studio Art'];
+const YEARS=['2027','2028','2029','2030'];
+const STYLES=[['quiet','Work quietly side by side'],['talk','Talk it out'],['mix','A bit of both']];
+const TIMES=[['morning','Mornings'],['afternoon','Afternoons'],['evening','Evenings'],['late','Late night']];
+const LENGTHS=['1 hour','2 hours',"Until it's done"];
+const PLACES=['Leyburn Library','Science Library','Elrod Commons','Downtown coffee shop','My room'];
+const FOCUS=[['silence','Total silence'],['buzz','Some background buzz'],['whiteboard','A whiteboard'],['tables','Big tables'],['light','Natural light'],['coffee','Coffee nearby']];
+const INDUSTRIES=['Finance','Consulting','Tech','Law','Health and medicine','Nonprofit and policy','Media','Not sure yet'];
+const STAGES=['Just exploring','Recruiting now','Have an offer'];
+const NEEDS=['Resume review','Cover letters','Interview prep','Internship search','Figuring out a path'];
+const styleShort={quiet:'quiet side by side',talk:'talk it out',mix:'a bit of both'};
+const timeShort={morning:'mornings',afternoon:'afternoons',evening:'evenings',late:'late nights'};
+const focusLabel=id=>{const f=FOCUS.find(x=>x[0]===id);return f?f[1].toLowerCase():id};
+
+const SPOTS=[
+  {id:'ley-carrels',name:'Leyburn Library, upper-floor carrels',call:'LEY 3 Q',tags:['silence','light'],style:'quiet',place:'Leyburn Library',blurb:'Solo carrels for heads-down work. Close to the group rooms if your group forms.'},
+  {id:'ley-rooms',name:'Leyburn group study rooms',call:'LEY G',tags:['whiteboard','tables'],style:'talk',place:'Leyburn Library',blurb:'Doors close, so you can talk it through. Groups of 3 on Studi can unlock one.'},
+  {id:'sci',name:'Science Library tables',call:'SCI T',tags:['silence','tables'],style:'quiet',place:'Science Library',blurb:'Big tables and real quiet for long problem sets.'},
+  {id:'coop',name:'Elrod Commons, the Co-op',call:'ELR C',tags:['buzz','coffee'],style:'talk',place:'Elrod Commons',blurb:'Background buzz and food within reach. Good for review sessions.'},
+  {id:'downtown',name:'A downtown coffee shop',call:'LEX C',tags:['buzz','coffee','light'],style:'mix',place:'Downtown coffee shop',blurb:'An off-campus reset with daylight and caffeine.'}
+];
+
+/* Sessions are generated from each person's answers, so every phone gets its own deck */
+const DEMO=(function(){try{return /demo/i.test(location.search+location.hash);}catch(e){return false;}})();
+const YEARLBL=['First-year','Sophomore','Junior','Senior'];
+const MAJORPOOL=MAJORS.filter(m=>m!=='Undeclared');
+const OVERRIDES={
+  BUS3340:['Prototype build night','Docudrama storyboard jam','Presentation run-through'],
+  ECON2003:['Stata help circle','Regression practice set','Take-home midterm prep'],
+  ECON2011:['Midterm practice problems','Problem set, start to finish','Money and inflation review'],
+  LOGIC:['Proofs and truth tables drill','Problem set check-in','Exam review']
+};
+const TEMPLATES={
+  pset:['Problem set, start to finish','Midterm practice problems','Homework check-in'],
+  exam:['Midterm flashcards','Concept review before the exam','Lecture notes swap'],
+  reading:['Reading discussion','Essay outline swap','Midterm review'],
+  project:['Project build night','Presentation run-through','Group work session'],
+  review:['Midterm review','Homework check-in','Notes swap']
+};
+const TIMESTR={
+  morning:['10:00 to 11:00 am','10:00 am to 12:00 pm',"10:00 am, until it's done"],
+  afternoon:['3:00 to 4:00 pm','3:00 to 5:00 pm',"3:00 pm, until it's done"],
+  evening:['7:00 to 8:00 pm','7:00 to 9:00 pm',"7:00 pm, until it's done"],
+  late:['9:30 to 10:30 pm','9:30 to 11:30 pm',"9:30 pm, until it's done"]
+};
+const BUCKETS=['morning','afternoon','evening','late'];
+const STYLEIDS=['quiet','talk','mix'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function kindOf(c){
+  const t=(c.code+' '+c.name).toLowerCase();
+  if(/bus|design|entre|market|mgmt|strat/.test(t)) return 'project';
+  if(/logic|econ|math|calc|stat|acct|account|financ|csci|comput|program|phys|chem|engr/.test(t)) return 'pset';
+  if(/bio|neuro|psyc|anat|geol|envi|health/.test(t)) return 'exam';
+  if(/hist|engl|phil|poli|rel|journ|lit|writ|span|fren|germ|chin|ital|art|music|thea|soan|soc|class/.test(t)) return 'reading';
+  return 'review';
+}
+function rngFrom(str){
+  let h=1779033703^str.length;
+  for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}
+  return function(){h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);h^=h>>>16;return (h>>>0)/4294967296;};
+}
+function dayLabel(offset,bucket){
+  if(offset===0) return (bucket==='evening'||bucket==='late')?'Tonight':'Today';
+  if(offset===1) return 'Tomorrow';
+  const d=new Date(now.getTime()+offset*86400000);
+  return DAYS[d.getDay()]+', '+MON[d.getMonth()].charAt(0)+MON[d.getMonth()].slice(1).toLowerCase()+' '+d.getDate();
+}
+function roomFor(place,letter){
+  return place==='Science Library'?'Science Library study room '+letter:'Leyburn group study room '+letter;
+}
+function genSessions(){
+  const p=S.p, rnd=rngFrom((p.email||'')+'|'+(p.name||'')+'|'+p.classes.join(','));
+  const pick=a=>a[Math.floor(rnd()*a.length)];
+  const people=n=>{const out=[];for(let i=0;i<n;i++) out.push(pick(YEARLBL)+', '+pick(MAJORPOOL));return out;};
+  const myB=p.time||'evening', altB=BUCKETS[(BUCKETS.indexOf(myB)+1+Math.floor(rnd()*2))%4];
+  const myS=p.style||'mix', altS=STYLEIDS.filter(x=>x!==myS)[Math.floor(rnd()*2)];
+  const li=Math.max(0,LENGTHS.indexOf(p.length)), li2=li===2?1:li;
+  let myPlace=p.place&&p.place!=='My room'?p.place:bestSpot().place;
+  const altPlace=myPlace==='Science Library'?'Leyburn Library':(myPlace==='Leyburn Library'?'Science Library':'Leyburn Library');
+  const tonight=(myB==='evening'||myB==='late')&&now.getHours()<18;
+  const out=[];
+  p.classes.forEach((cid,ci)=>{
+    const c=course(cid); if(!c) return;
+    const titles=OVERRIDES[cid]||TEMPLATES[kindOf(c)];
+    out.push({id:cid+'-a',course:cid,title:titles[0],day:dayLabel(ci===0&&tonight?0:Math.min(1+ci,4),myB),time:TIMESTR[myB][li],bucket:myB,place:myPlace,style:myS,joined:2,cap:4,who:people(2),room:null,jit:Math.floor(rnd()*5)});
+    const booked=ci%2===1;
+    out.push({id:cid+'-b',course:cid,title:titles[1],day:dayLabel(2+ci%3,altB),time:TIMESTR[altB][li2],bucket:altB,place:altPlace,style:altS,joined:booked?3:1,cap:5,who:people(booked?3:1),room:booked?roomFor(altPlace,'D'):null,jit:Math.floor(rnd()*6)});
+    if(p.classes.length<3) out.push({id:cid+'-c',course:cid,title:titles[2],day:dayLabel(3+ci,myB),time:TIMESTR[myB][li2],bucket:myB,place:altPlace,style:myS,joined:1,cap:4,who:people(1),room:null,jit:3+Math.floor(rnd()*5)});
+  });
+  return out;
+}
+
+const FELLOWS=[
+  {id:'f1',name:'Caroline M.',year:'2027',major:'Economics',summer:'Investment banking intern, New York',helps:['Resume review','Interview prep','Internship search'],industries:['Finance']},
+  {id:'f2',name:'James T.',year:'2027',major:'Business Administration',summer:'Strategy consulting intern, Washington, DC',helps:['Interview prep','Cover letters'],industries:['Consulting']},
+  {id:'f3',name:'Priya S.',year:'2028',major:'Computer Science',summer:'Software engineering intern',helps:['Resume review','Internship search'],industries:['Tech']},
+  {id:'f4',name:'Will H.',year:'2027',major:'Politics',summer:'Policy intern on Capitol Hill',helps:['Cover letters','Figuring out a path'],industries:['Nonprofit and policy','Law']},
+  {id:'f5',name:'Anna K.',year:'2028',major:'Neuroscience',summer:'Clinical research assistant',helps:['Resume review','Figuring out a path'],industries:['Health and medicine']},
+  {id:'f6',name:'Ben R.',year:'2027',major:'Journalism',summer:'Newsroom intern',helps:['Cover letters','Figuring out a path'],industries:['Media']},
+  {id:'f7',name:'Maya L.',year:'2028',major:'Accounting',summer:'Accounting firm leadership program',helps:['Interview prep','Internship search'],industries:['Finance']}
+];
+
+const ORDER=['welcome','email','code','about','classes','style','place','career','spot','app'];
+
+let S;
+function fresh(){
+  S={screen:'welcome',
+     p:{email:'',code:'',name:'',year:'',major:'',minor:'',classes:[],style:'',time:'',length:'',place:'',focus:[],industries:[],stage:'',needs:[]},
+     sessions:[],sig:'',custom:[],
+     joined:[],requested:[],tab:'groups',gOrder:[],fOrder:[],gi:0,fi:0,
+     rooms:['B','C','E','F','G','H'],busy:false};
+}
+
+/* Matching */
+function sFit(s){
+  const p=S.p; let sc=62; const why=[];
+  if(p.classes.includes(s.course)){sc+=10;}
+  if(p.time&&p.time===s.bucket){sc+=12;why.push('your '+timeShort[s.bucket]);}
+  if(p.style&&p.style===s.style){sc+=10;why.push(styleShort[s.style]==='talk it out'?'your talk-it-out style':(styleShort[s.style]==='quiet side by side'?'your quiet style':'your mixed style'));}
+  else if(p.style==='mix'||s.style==='mix'){sc+=5;}
+  if(p.place&&p.place===s.place){sc+=5;why.push(s.place);}
+  sc-=(s.jit||0);
+  return {pct:Math.max(61,Math.min(98,sc)),why};
+}
+const fitLine=f=>f.why.length?'Matches '+f.why.join(', ')+'.':'Open seats in your class this week.';
+function fFit(fl){
+  const p=S.p; let sc=60; const why=[];
+  const ind=fl.industries.filter(x=>p.industries.includes(x));
+  if(ind.length){sc+=Math.min(28,ind.length*16);why.push(ind.join(' and ').toLowerCase());}
+  const nd=fl.helps.filter(x=>p.needs.includes(x));
+  if(nd.length){sc+=Math.min(18,nd.length*7);why.push(nd.map(x=>x.toLowerCase()).join(', '));}
+  if(p.industries.includes('Not sure yet')&&fl.helps.includes('Figuring out a path')){sc+=14;if(!nd.includes('Figuring out a path'))why.push('good for exploring');}
+  if(p.stage==='Recruiting now'&&fl.helps.includes('Interview prep')){sc+=4;why.push('recruiting-ready');}
+  if(p.year&&Number(fl.year)<Number(p.year)) sc+=2;
+  if(!why.length) why.push('open slots this week');
+  return {pct:Math.min(97,sc),why};
+}
+function bestSpot(){
+  const p=S.p; let best=null;
+  SPOTS.forEach(sp=>{
+    let sc=0; const why=[];
+    p.focus.forEach(t=>{if(sp.tags.includes(t)){sc+=3;why.push(focusLabel(t));}});
+    if(p.style&&sp.style===p.style){sc+=3;why.push(styleShort[p.style]);}
+    else if(p.style==='mix'||sp.style==='mix'){sc+=1;}
+    if(p.place===sp.place){sc+=2;why.push('you already like '+sp.place);}
+    if(!best||sc>best.sc) best=Object.assign({},sp,{sc,why});
+  });
+  best.pct=Math.min(97,72+best.sc*3);
+  if(!best.why.length) best.why=['a solid default for your schedule'];
+  return best;
+}
+
+/* Validation */
+function valid(scr){
+  const p=S.p;
+  switch(scr){
+    case 'email': return p.email.trim().length>3;
+    case 'code': return /^\d{6}$/.test(p.code);
+    case 'about': return !!(p.name.trim()&&p.year);
+    case 'classes': return p.classes.length>0;
+    case 'style': return !!(p.style&&p.time&&p.length);
+    case 'place': return !!p.place;
+    default: return true;
+  }
+}
+function syncCTA(){const b=$('#cta');if(b) b.disabled=!valid(S.screen);}
+
+/* Pieces */
+const bar=()=>'<div class="bar"><button class="back" data-action="back">‹ Back</button><span class="wordmark small">Studi</span></div>';
+function chips(key,opts,multi){
+  const p=S.p;
+  return '<div class="chips" role="group" aria-labelledby="lab-'+key+'">'+opts.map(o=>{
+    const val=Array.isArray(o)?o[0]:o, lab=Array.isArray(o)?o[1]:o;
+    const on=multi?p[key].includes(val):p[key]===val;
+    return '<button type="button" class="chip" data-action="pick" data-key="'+key+'" data-val="'+esc(val)+'" data-multi="'+(multi?1:0)+'" aria-pressed="'+on+'">'+esc(lab)+'</button>';
+  }).join('')+'</div>';
+}
+function selectOpts(list,cur,placeholder){
+  return '<option value="">'+placeholder+'</option>'+list.map(x=>'<option'+(x===cur?' selected':'')+'>'+esc(x)+'</option>').join('');
+}
+const page=(inner,n)=>'<div class="bookwrap"><div class="book"><div class="paper">'+inner+(n?'<div class="folio">p. '+n+' of 7</div>':'')+'</div></div></div>';
+const cta=(label)=>'<div class="actions"><button class="btn btn-primary btn-wide" id="cta" data-action="next">'+label+'</button></div>';
+
+/* Screens */
+function screenHTML(){
+  const p=S.p;
+  switch(S.screen){
+  case 'welcome':
+    return '<div class="screen welcome"><div class="welcome-mid"><div class="cover-book"><div class="plate"><div class="plate-title">Studi</div><div class="plate-sub">Study groups and Career Fellows at W&amp;L</div></div>'+OWL+'<p class="cover-tag">Ideas don\'t grow alone.</p></div></div>'+
+      '<div class="actions"><button class="btn btn-primary btn-wide" data-action="start">Sign in with your W&amp;L email</button><p class="hint">Takes about 60 seconds. Nothing you enter leaves your phone.</p>'+(DEMO?'<button class="link" data-action="presenter">Presenter shortcut: skip to the spot match</button>':'')+'</div></div>';
+  case 'email':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">Start with your W&amp;L email</h1><p class="sub">Only W&amp;L students get in. We send a 6-digit code to confirm it\'s you.</p>'+
+      '<label class="lab" for="f-email">W&amp;L email</label><input id="f-email" class="field" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@mail.wlu.edu" data-bind="email" value="'+esc(p.email)+'">'+
+      '<p class="err" id="err" role="alert"></p><div class="note">No photos. No public profile. Everything clears at the end of each term. In this demo, nothing leaves your phone.</div>',1)+cta('Send code')+'</div>';
+  case 'code':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">Check your inbox</h1><p class="sub">We sent a 6-digit code to <span class="typed">'+esc(p.email)+'</span>.</p>'+
+      '<label class="lab" for="f-code">Code</label><input id="f-code" class="field code-field" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" data-bind="code" value="'+esc(p.code)+'">'+
+      '<p class="hint-in">Prototype: any 6 digits work.</p>',2)+cta('Verify')+'</div>';
+  case 'about':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">A little about you</h1><p class="sub">No photos and no age. Classmates see your first name, year, and major.</p>'+
+      '<label class="lab" for="f-name">First name</label><input id="f-name" class="field" autocomplete="given-name" data-bind="name" value="'+esc(p.name)+'">'+
+      '<span class="lab" id="lab-year">Class year</span>'+chips('year',YEARS)+
+      '<label class="lab" for="f-major">Major</label><select id="f-major" class="field" data-bind="major">'+selectOpts(MAJORS,p.major,'Choose your major')+'</select>'+
+      '<label class="lab" for="f-minor">Minor</label><select id="f-minor" class="field" data-bind="minor">'+selectOpts(MINORS,p.minor,'Choose a minor')+'</select>',3)+cta('Continue')+'</div>';
+  case 'classes':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">Your classes this term</h1><p class="sub">Groups only form inside a class. Pick every class you\'d study for with others, or add your own.</p>'+
+      '<div class="chips" role="group" aria-label="Classes">'+COURSES.concat(S.custom).map(c=>'<button type="button" class="chip" data-action="pick" data-key="classes" data-val="'+c.id+'" data-multi="1" aria-pressed="'+p.classes.includes(c.id)+'"><span class="code">'+esc(c.code)+'</span>'+esc(c.name)+'</button>').join('')+'</div>'+
+      '<div class="addrow"><input id="f-addclass" class="field" maxlength="48" autocomplete="off" placeholder="Add a class, like HIST 1001 Modern Europe" aria-label="Add a class"><button type="button" class="btn btn-ink add-btn" data-action="add-class">Add</button></div>',4)+cta('Continue')+'</div>';
+  case 'style':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">How you study</h1><p class="sub">Three taps. This is what the matching runs on.</p>'+
+      '<span class="lab" id="lab-style">In a group, I\'d rather</span>'+chips('style',STYLES)+
+      '<span class="lab" id="lab-time">Best time</span>'+chips('time',TIMES)+
+      '<span class="lab" id="lab-length">Session length</span>'+chips('length',LENGTHS),5)+cta('Continue')+'</div>';
+  case 'place':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">Where you focus</h1><p class="sub">We use this to pick your Studi spot.</p>'+
+      '<span class="lab" id="lab-place">Favorite place to study</span>'+chips('place',PLACES)+
+      '<span class="lab" id="lab-focus">What helps you focus? Pick any.</span>'+chips('focus',FOCUS,true),6)+cta('Continue')+'</div>';
+  case 'career':
+    return '<div class="screen">'+bar()+page(
+      '<h1 class="h">Career Fellows</h1><p class="sub">Optional. Career Fellows are W&amp;L students trained to help peers with resumes, interviews, and the search. Three questions gets you a match.</p>'+
+      '<span class="lab" id="lab-industries">Industries you\'re curious about</span>'+chips('industries',INDUSTRIES,true)+
+      '<span class="lab" id="lab-stage">Where you are</span>'+chips('stage',STAGES)+
+      '<span class="lab" id="lab-needs">What you want help with</span>'+chips('needs',NEEDS,true),7)+
+      '<div class="actions"><button class="btn btn-primary btn-wide" id="cta" data-action="next">Find my spot</button><button class="link" data-action="skip-career">Skip for now</button></div></div>';
+  case 'spot': {
+    const sp=bestSpot();
+    const t=p.time?cap(timeShort[p.time]):'Any time';
+    return '<div class="screen">'+bar()+page(
+      '<p class="sub" style="margin-bottom:4px">Based on how you study, start here.</p><h1 class="h">'+(p.name.trim()?esc(p.name.trim())+', your Studi spot':'Your Studi spot')+'</h1>'+
+      '<div class="slip"><span class="tape"></span><div class="slip-top"><span>Call no. '+sp.call+'</span><span>'+sp.pct+'% fit</span></div>'+
+      '<div class="slip-name">'+sp.name+'</div><hr class="rule"><p class="slip-line">'+sp.blurb+'</p>'+
+      '<dl class="facts"><dt>Why you</dt><dd>'+esc(cap(sp.why.join(', ')))+'.</dd><dt>Best time</dt><dd>'+t+(p.length?', '+esc(p.length.toLowerCase()):'')+'</dd></dl>'+
+      '<div class="stamp inflow slam" aria-hidden="true">MATCHED<small>'+DATE+'</small></div></div>'+
+      '<p class="sub small">Your study groups meet here when they can. Groups of 3 unlock a private room.</p>')+
+      cta('Open my Studi')+'</div>';
+  }
+  case 'app': return appHTML();
+  }
+  return '';
+}
+
+function appHTML(){
+  const name=esc(S.p.name.trim()||'there');
+  const n=S.joined.length+S.requested.length;
+  const tabs=[['groups','Study groups'],['fellows','Career Fellows'],['shelf','My shelf'+(n?' ('+n+')':'')]];
+  let inner='',actions='';
+  if(S.tab==='shelf'){inner=shelfHTML();}
+  else{
+    const isG=S.tab==='groups', order=isG?S.gOrder:S.fOrder, i=isG?S.gi:S.fi;
+    inner='<div class="deck" id="deck">'+deckPages(isG,order,i)+'</div>';
+    if(i<order.length){
+      actions='<div class="deck-actions"><button class="btn btn-ghost" data-action="skip">Skip</button><button class="btn btn-stamp" data-action="join">'+(isG?'Join group':'Request Fellow')+'</button></div>'+
+        '<p class="hint">Swipe left to turn the page. Swipe right to '+(isG?'join':'request')+'.</p>';
+    }
+  }
+  return '<div class="screen app"><div class="bar"><span class="wordmark">Studi</span><span class="hi">Hi, '+name+'</span></div>'+
+    '<div class="bookwrap"><div class="tabs" role="tablist" aria-label="Sections">'+tabs.map(t=>'<button class="tab" role="tab" id="tab-'+t[0]+'" aria-selected="'+(S.tab===t[0])+'" data-action="tab" data-tab="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'+
+    '<div class="book book-app" role="tabpanel" aria-labelledby="tab-'+S.tab+'">'+inner+'</div></div>'+actions+'</div>';
+}
+
+function deckPages(isG,order,i){
+  const total=order.length;
+  if(i>=total) return endPage(isG,'top');
+  const top=isG?groupPage(order[i],i,total,'top'):fellowPage(order[i],i,total,'top');
+  const under=i+1<total?(isG?groupPage(order[i+1],i+1,total,'under'):fellowPage(order[i+1],i+1,total,'under')):endPage(isG,'under');
+  return under+top;
+}
+function pageAttrs(pos,label){
+  return pos==='top'?' tabindex="0" aria-label="'+esc(label)+'. Left arrow skips, right arrow '+(S.tab==='groups'?'joins':'requests')+'."':' aria-hidden="true"';
+}
+function groupPage(id,i,total,pos){
+  const s=S.sessions.find(x=>x.id===id), c=course(s.course), f=sFit(s);
+  const note=s.room?'Room booked: '+s.room+'.':(s.joined===2?'Join to make 3. Groups of 3 unlock a room.':(3-s.joined)+' more to unlock a room.');
+  return '<article class="page '+pos+'"'+pageAttrs(pos,c.code+', '+s.title)+'><div class="face">'+
+    '<div class="pg-top"><span>'+esc(c.code)+'</span><span class="seats" role="img" aria-label="'+s.joined+' of '+s.cap+' seats taken">'+'<i class="on"></i>'.repeat(s.joined)+'<i></i>'.repeat(s.cap-s.joined)+'</span></div>'+
+    '<div class="pg-course">'+esc(c.name)+'</div><h2 class="pg-title">'+esc(s.title)+'</h2><hr class="rule">'+
+    '<dl class="facts"><dt>When</dt><dd>'+s.day+', '+s.time+'</dd><dt>Where</dt><dd>'+(s.room||s.place)+'</dd><dt>Style</dt><dd>'+cap(styleShort[s.style])+'</dd><dt>Who\'s in</dt><dd>'+s.who.map(esc).join('<br>')+'</dd></dl>'+
+    '<p class="margin-note"><b>'+f.pct+'% fit.</b> '+esc(fitLine(f))+'</p>'+
+    '<div class="note">'+note+'</div><div class="folio">p. '+(i+1)+' of '+total+'</div></div>'+
+    '<div class="stamp" aria-hidden="true">JOINED<small>'+DATE+'</small></div><div class="shade"></div></article>';
+}
+function fellowPage(id,i,total,pos){
+  const fl=FELLOWS.find(x=>x.id===id), f=fFit(fl);
+  return '<article class="page '+pos+'"'+pageAttrs(pos,'Career Fellow '+fl.name)+'><div class="face">'+
+    '<div class="pg-top"><span>Career Fellow</span><span>Class of '+fl.year+'</span></div>'+
+    '<h2 class="pg-title">'+fl.name+'</h2><div class="pg-course">'+fl.major+' major</div><hr class="rule">'+
+    '<dl class="facts"><dt>Summer</dt><dd>'+fl.summer+'</dd><dt>Helps with</dt><dd>'+fl.helps.join('<br>')+'</dd><dt>Industry</dt><dd>'+fl.industries.join(', ')+'</dd><dt>Meets</dt><dd>CPD office or Zoom</dd></dl>'+
+    '<p class="margin-note"><b>'+f.pct+'% fit.</b> '+esc(cap(f.why.join(', ')))+'.</p>'+
+    '<div class="note">Swipe right to request. Booking stays in Handshake.</div><div class="folio">p. '+(i+1)+' of '+total+'</div></div>'+
+    '<div class="stamp" aria-hidden="true">REQUESTED<small>'+DATE+'</small></div><div class="shade"></div></article>';
+}
+function endPage(isG,pos){
+  return '<article class="page '+pos+' end"'+(pos==='under'?' aria-hidden="true"':'')+'><div class="face end-face">'+OWL+
+    '<h2 class="pg-title">You\'ve read every page.</h2><p class="sub">'+(isG?'New groups post every day. The ones you joined are on your shelf.':'That\'s every Fellow with open slots this week.')+'</p>'+
+    (pos==='top'?'<button class="btn btn-ink" data-action="restart-deck">Turn back to page 1</button>':'')+'</div></article>';
+}
+function shelfHTML(){
+  const gs=S.joined.map(id=>S.sessions.find(s=>s.id===id));
+  const fs=S.requested.map(id=>FELLOWS.find(f=>f.id===id));
+  const sp=bestSpot();
+  const g=gs.length?gs.map(s=>{
+    const c=course(s.course), st=s.room?'Room: '+s.room:(3-s.joined)+' more to unlock a room';
+    return '<div class="mini"><div class="mini-l">'+esc(c.code)+', '+esc(c.name)+'</div><div class="mini-t">'+esc(s.title)+'</div><div class="mini-l">'+s.day+', '+s.time+'</div><div class="mini-s">'+st+'</div></div>';
+  }).join(''):'<p class="empty">No groups yet. Swipe right on a page in Study groups to join one.</p>';
+  const f=fs.length?fs.map(fl=>'<div class="mini"><div class="mini-t">'+fl.name+'</div><div class="mini-l">Career Fellow, Class of '+fl.year+'</div><div class="mini-s">Accepted. Book in Handshake.</div></div>').join(''):'<p class="empty">No Fellow yet. Swipe right in Career Fellows to request one.</p>';
+  return '<div class="paper shelf"><h1 class="h">My shelf</h1><p class="sub">What you\'ve checked out this term.</p>'+
+    '<h2 class="h2">Your Studi spot</h2><div class="mini"><div class="mini-t">'+sp.name+'</div><div class="mini-l">Call no. '+sp.call+'</div></div>'+
+    '<h2 class="h2">Study groups</h2>'+g+'<h2 class="h2">Career Fellows</h2>'+f+
+    '<div class="note">Your shelf clears at the end of Fall Term. Next term starts fresh.</div>'+
+    '<button class="btn btn-ink reset" data-action="reset">Reset demo for the next person</button></div>';
+}
+
+/* Render and navigation */
+function render(){
+  screenEl.innerHTML=screenHTML();
+  syncCTA();
+  if(S.screen==='app'&&S.tab!=='shelf') bindDeck();
+  if(S.screen==='email'||S.screen==='code'){
+    const inp=screenEl.querySelector('input');
+    if(inp) setTimeout(()=>{try{inp.focus({preventScroll:true});}catch(e){}},reduceMotion()?0:620);
+  }
+}
+function enterApp(){
+  const p=S.p;
+  const sig=JSON.stringify([p.email,p.name,p.classes,p.time,p.style,p.length,p.place,p.focus]);
+  if(sig!==S.sig){S.sig=sig;S.sessions=genSessions();S.joined=[];S.rooms=['B','C','E','F','G','H'];}
+  const mine=S.sessions.filter(s=>p.classes.includes(s.course)&&!S.joined.includes(s.id));
+  mine.sort((a,b)=>{
+    const ua=(a.joined===2&&!a.room)?1:0, ub=(b.joined===2&&!b.room)?1:0;
+    if(ua!==ub) return ub-ua;
+    if(ua){const ba=a.course==='BUS3340'?1:0, bb=b.course==='BUS3340'?1:0; if(ba!==bb) return bb-ba; return 0;}
+    return sFit(b).pct-sFit(a).pct;
+  });
+  S.gOrder=mine.map(s=>s.id); S.gi=0;
+  S.fOrder=FELLOWS.filter(f=>!S.requested.includes(f.id)).sort((a,b)=>fFit(b).pct-fFit(a).pct).map(f=>f.id); S.fi=0;
+}
+function go(scr){
+  const old=reduceMotion()?null:screenEl.querySelector('.paper, .cover-book');
+  let rect,pr;
+  if(old){rect=old.getBoundingClientRect();pr=phone.getBoundingClientRect();}
+  if(scr==='app') enterApp();
+  S.screen=scr; render();
+  if(old){
+    old.style.inset='auto';
+    Object.assign(old.style,{position:'absolute',left:(rect.left-pr.left)+'px',top:(rect.top-pr.top)+'px',width:rect.width+'px',height:rect.height+'px',margin:'0',zIndex:'30',pointerEvents:'none',maxWidth:'none'});
+    old.classList.add('turning');
+    phone.appendChild(old);
+    setTimeout(()=>old.remove(),650);
+  }
+}
+function next(){
+  if(S.screen==='email'&&!/@(mail\.)?wlu\.edu$/i.test(S.p.email.trim())){
+    const err=$('#err'); if(err) err.textContent='Use your W&L email. It ends in wlu.edu.'; return;
+  }
+  if(!valid(S.screen)) return;
+  go(ORDER[ORDER.indexOf(S.screen)+1]);
+}
+function back(){const i=ORDER.indexOf(S.screen);if(i>0){S.screen=ORDER[i-1];render();}}
+function pick(btn){
+  const key=btn.dataset.key, val=btn.dataset.val, multi=btn.dataset.multi==='1', p=S.p;
+  if(multi){
+    const i=p[key].indexOf(val);
+    if(i>=0) p[key].splice(i,1); else p[key].push(val);
+    btn.setAttribute('aria-pressed',String(i<0));
+  }else{
+    p[key]=val;
+    screenEl.querySelectorAll('[data-key="'+key+'"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.val===val)));
+  }
+  syncCTA();
+}
+function addClass(){
+  const inp=$('#f-addclass'); if(!inp) return;
+  const v=inp.value.trim().replace(/\s+/g,' '); if(!v) return;
+  const m=v.match(/^([A-Za-z]{2,5})\s*-?\s*(\d{3,4}[A-Za-z]?)\s*(.*)$/);
+  const c={id:'X'+(S.custom.length+1)+'-'+Date.now().toString(36),code:m?m[1].toUpperCase()+' '+m[2]:'Added class',name:m?(m[3]||'Your class'):v};
+  S.custom.push(c); S.p.classes.push(c.id); render();
+  const again=$('#f-addclass'); if(again){try{again.focus({preventScroll:true});}catch(e){}}
+  toast('Added '+(m?c.code:c.name)+'.');
+}
+function presenter(){
+  Object.assign(S.p,{email:'drake@mail.wlu.edu',code:'123456',name:'Drake',year:'2028',major:'Economics',minor:'Philosophy',
+    classes:['BUS3340','ECON2011','ECON2003','LOGIC'],style:'talk',time:'evening',length:'2 hours',place:'Leyburn Library',
+    focus:['whiteboard','tables'],industries:['Finance','Tech'],stage:'Just exploring',needs:['Resume review','Figuring out a path']});
+  go('spot');
+}
+
+/* Deck interaction */
+const topPage=()=>$('#deck .page.top:not(.end)');
+function bindDeck(){
+  const top=topPage(); if(!top) return;
+  const stamp=top.querySelector('.stamp'), shade=top.querySelector('.shade');
+  let sx=0,sy=0,dx=0,t0=0,active=false,dragging=false,pid=null;
+  function paint(d){
+    const w=top.offsetWidth;
+    if(d<0){
+      const c=Math.max(-1,(w+d)/w), ang=-Math.acos(c)*180/Math.PI;
+      top.style.transform='rotateY('+ang+'deg)';
+      shade.style.opacity=String(Math.min(.55,-ang/180));
+      stamp.style.opacity='0';
+    }else{
+      const o=Math.min(1,d/110);
+      top.style.transform='translateX('+(d*.18)+'px) rotate('+(d*.015)+'deg)';
+      shade.style.opacity='0';
+      stamp.style.opacity=String(o*.92);
+      stamp.style.transform='rotate(-12deg) scale('+(1.5-.5*o)+')';
+    }
+  }
+  function springBack(){
+    top.style.transition='transform .32s cubic-bezier(.3,1.3,.5,1)'; top.style.transform='';
+    stamp.style.transition='opacity .2s'; stamp.style.opacity='0'; shade.style.opacity='0';
+  }
+  top.addEventListener('pointerdown',e=>{
+    if(S.busy||(e.pointerType==='mouse'&&e.button!==0)) return;
+    active=true;dragging=false;sx=e.clientX;sy=e.clientY;dx=0;t0=performance.now();pid=e.pointerId;
+    top.style.transition='none';stamp.style.transition='none';shade.style.transition='none';
+  });
+  top.addEventListener('pointermove',e=>{
+    if(!active) return;
+    const mx=e.clientX-sx, my=e.clientY-sy;
+    if(!dragging){
+      if(Math.abs(mx)>8&&Math.abs(mx)>Math.abs(my)*1.2){dragging=true;try{top.setPointerCapture(pid);}catch(err){}}
+      else if(Math.abs(my)>10){active=false;return;}
+      else return;
+    }
+    dx=mx; paint(dx); e.preventDefault();
+  });
+  const end=()=>{
+    if(!active) return; active=false;
+    if(!dragging) return; dragging=false;
+    const w=top.offsetWidth, v=dx/Math.max(1,performance.now()-t0);
+    if(dx<-w*.3||(dx<-40&&v<-.6)) act('skip');
+    else if(dx>90||(dx>40&&v>.6)) act('join');
+    else springBack();
+  };
+  top.addEventListener('pointerup',end);
+  top.addEventListener('pointercancel',end);
+}
+function act(kind){
+  if(S.busy) return;
+  const top=topPage(); if(!top) return;
+  S.busy=true;
+  const stamp=top.querySelector('.stamp'), shade=top.querySelector('.shade');
+  if(reduceMotion()){finish(kind);return;}
+  const flip=()=>{
+    top.style.transition='transform .48s cubic-bezier(.35,.1,.25,1)';
+    top.style.transform='rotateY(-180deg)';
+    shade.style.transition='opacity .48s'; shade.style.opacity='.55';
+    setTimeout(()=>finish(kind),480);
+  };
+  if(kind==='join'){
+    top.style.transition='transform .18s ease'; top.style.transform='';
+    stamp.style.transform=''; stamp.style.opacity=''; stamp.style.transition='';
+    stamp.classList.remove('slam'); void stamp.offsetWidth; stamp.classList.add('slam');
+    setTimeout(flip,520);
+  }else flip();
+}
+function finish(kind){
+  const isG=S.tab==='groups'; let ov=null,msg=null;
+  if(isG){
+    const id=S.gOrder[S.gi];
+    if(kind==='join'){
+      const s=S.sessions.find(x=>x.id===id);
+      S.joined.push(id); s.joined=Math.min(s.cap,s.joined+1); s.who.push('You');
+      if(!s.room&&s.joined>=3){s.room=roomFor(s.place,S.rooms.shift()||'B');ov={type:'room',s:s};}
+      else if(s.room){msg='Joined. You\'re in '+s.room+'.';}
+      else{const n=3-s.joined;msg='Joined. '+(n===1?'1 more classmate unlocks a room.':n+' more classmates unlock a room.');}
+    }
+    S.gi++;
+  }else{
+    const id=S.fOrder[S.fi];
+    if(kind==='join'){S.requested.push(id);ov={type:'fellow',fl:FELLOWS.find(f=>f.id===id)};}
+    S.fi++;
+  }
+  S.busy=false; render();
+  if(ov) openOverlay(ov); else if(msg) toast(msg);
+}
+
+/* Overlays and toast */
+function openOverlay(ov){
+  closeOverlay();
+  const el=document.createElement('div');
+  el.className='overlay'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','ov-h');
+  let body='';
+  if(ov.type==='room'){
+    const s=ov.s, c=course(s.course);
+    body='<h2 class="h" id="ov-h">Room unlocked</h2><p class="sub">Your group hit 3, so the room is yours.</p>'+
+      '<dl class="facts"><dt>Group</dt><dd>'+esc(c.code)+', '+esc(s.title)+'</dd><dt>Room</dt><dd>'+s.room+'</dd><dt>When</dt><dd>'+s.day+', '+s.time+'</dd><dt>Seats</dt><dd>You + '+(s.joined-1)+' classmates, '+s.joined+' of '+s.cap+'</dd></dl>'+
+      '<div class="stamp inflow slam" aria-hidden="true">RESERVED<small>'+DATE+'</small></div>'+
+      '<p class="pilot">Pilot: the Studi team books the room in 25Live and sends it here.</p>'+
+      '<div class="ov-actions"><button class="btn btn-ghost-ink" data-action="go-shelf">See my shelf</button><button class="btn btn-ink" data-action="close-ov">Keep browsing</button></div>';
+  }else{
+    const fl=ov.fl, focus=fl.helps.filter(h=>S.p.needs.includes(h));
+    body='<h2 class="h" id="ov-h">Request accepted</h2><p class="sub">'+fl.name+' has open slots this week.</p>'+
+      '<dl class="facts"><dt>Fellow</dt><dd>'+fl.name+', Class of '+fl.year+'</dd><dt>Focus</dt><dd>'+(focus.length?focus:fl.helps.slice(0,2)).join(', ')+'</dd><dt>Where</dt><dd>CPD, Elrod Commons 301, or Zoom</dd></dl>'+
+      '<div class="stamp inflow slam" aria-hidden="true">ACCEPTED<small>'+DATE+'</small></div>'+
+      '<p class="pilot">Booking stays in Handshake, so CPD keeps the system it already runs.</p>'+
+      '<div class="ov-actions"><button class="btn btn-ghost-ink" data-action="close-ov">Keep browsing</button><button class="btn btn-ink" data-action="handshake" data-name="'+esc(fl.name)+'">Book in Handshake</button></div>';
+  }
+  el.innerHTML='<div class="slip"><span class="tape"></span>'+body+'</div>';
+  phone.appendChild(el);
+  const b=el.querySelector('.btn-ink'); if(b) b.focus();
+}
+function closeOverlay(){const o=phone.querySelector('.overlay');if(o) o.remove();}
+let tt;
+function toast(m){toastEl.textContent=m;toastEl.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove('on'),2800);}
+
+/* Events */
+phone.addEventListener('click',e=>{
+  const t=e.target.closest('[data-action]'); if(!t) return;
+  switch(t.dataset.action){
+    case 'start': go('email'); break;
+    case 'presenter': presenter(); break;
+    case 'back': back(); break;
+    case 'next': next(); break;
+    case 'skip-career': S.p.industries=[];S.p.stage='';S.p.needs=[]; go('spot'); break;
+    case 'pick': pick(t); break;
+    case 'tab': S.tab=t.dataset.tab; render(); break;
+    case 'skip': act('skip'); break;
+    case 'join': act('join'); break;
+    case 'restart-deck': enterApp(); render(); break;
+    case 'close-ov': closeOverlay(); break;
+    case 'go-shelf': closeOverlay(); S.tab='shelf'; render(); break;
+    case 'handshake': closeOverlay(); toast('In the live app, this opens '+t.dataset.name+'\'s Handshake slots.'); break;
+    case 'reset': closeOverlay(); fresh(); render(); break;
+    case 'add-class': addClass(); break;
+  }
+});
+function onField(e){
+  const t=e.target, k=t.dataset&&t.dataset.bind; if(!k) return;
+  if(k==='code'){t.value=t.value.replace(/\D/g,'').slice(0,6);}
+  S.p[k]=t.value;
+  const err=$('#err'); if(err) err.textContent='';
+  syncCTA();
+}
+screenEl.addEventListener('input',onField);
+screenEl.addEventListener('change',onField);
+screenEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.id==='f-addclass'){e.preventDefault();addClass();return;}
+  if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();const b=$('#cta');if(b&&!b.disabled) next();}
+});
+document.addEventListener('keydown',e=>{
+  if(phone.querySelector('.overlay')){if(e.key==='Escape') closeOverlay();return;}
+  if(S.screen!=='app'||S.tab==='shelf') return;
+  if(e.target.matches&&e.target.matches('input,select,textarea')) return;
+  if(e.key==='ArrowLeft'){e.preventDefault();act('skip');}
+  else if(e.key==='ArrowRight'){e.preventDefault();act('join');}
+});
+
+fresh(); render();
+})();
+</script>
+</body>
+</html>

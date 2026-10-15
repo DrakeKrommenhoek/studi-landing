@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --desk: #6a5843;
+  --desk-deep: #54463a;
+  --on-desk: #fff6ec;
+  --on-desk-soft: #e6d5c1;
+  --cover: #b65e3c;
+  --cover-deep: #8e4529;
+  --on-cover: #fff4ea;
+  --paper: #fceee4;
+  --paper-2: #ebd3c2;
+  --slip: #fffaf2;
+  --ink: #4a2422;
+  --ink-soft: #7d574e;
+  --rule: #c2463a;
+  --stamp: #5747a6;
+  --note: #f3e7b2;
+  --tape: rgba(215, 150, 138, 0.8);
+  --focus: #f3c94b;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --desk: #251e18;
+    --desk-deep: #1a1511;
+    --on-desk: #f4e9db;
+    --on-desk-soft: #c2b19d;
+    --cover: #9a4e32;
+    --cover-deep: #6e351f;
+    --on-cover: #fcefe2;
+    --paper: #eadbcb;
+    --paper-2: #cdb8a4;
+    --slip: #f2e6d8;
+    --stamp: #5546a0;
+    --note: #e4d69e;
+    color-scheme: dark;
+  }
+}
+
+html {
+  /* Keeps focused elements and anchor targets clear of the sticky nav */
+  scroll-padding-top: 76px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--desk);
+  color: var(--on-desk);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-page px-5 md:px-8;
+  }
+  .section {
+    @apply scroll-mt-16 py-16 md:py-24;
+  }
+  .h2 {
+    @apply font-hand text-[1.953rem] leading-[1.1] md:text-[2.441rem];
+  }
+  .h3 {
+    @apply font-hand text-[1.563rem] leading-[1.15];
+  }
+  .btn-demo {
+    @apply inline-flex min-h-[48px] items-center justify-center rounded-hand bg-note px-6 pb-3 pt-2.5 font-hand text-[1.3rem] leading-none text-ink no-underline;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.28);
+  }
+  .btn-demo:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
+  }
+  .text-link {
+    @apply inline-flex min-h-[44px] items-center text-on-desk-soft underline decoration-2 underline-offset-4 hover:text-on-desk;
+  }
+  /* The prototype's date stamp */
+  .stamp {
+    @apply inline-block whitespace-nowrap rounded-[6px] px-3 pb-1 pt-1.5 text-center font-type text-2xl font-bold leading-[1.05] tracking-[2px];
+    border: 4px double var(--stamp);
+    color: var(--stamp);
+    mix-blend-mode: multiply;
+  }
+  .stamp small {
+    @apply block text-xs tracking-[1.5px];
+  }
+  /* Book page: cream paper with a shaded spine on the left */
+  .page-paper {
+    color: var(--ink);
+    background: linear-gradient(90deg, rgba(74, 36, 34, 0.16), rgba(74, 36, 34, 0) 24px), var(--paper);
+  }
+  /* Ruled index slip */
+  .slip {
+    color: var(--ink);
+    background-color: var(--slip);
+    background-image: repeating-linear-gradient(180deg, transparent 0 25px, rgba(90, 120, 170, 0.16) 25px 26px);
+    box-shadow: 0 10px 20px -14px rgba(60, 30, 10, 0.6);
+  }
+  .tape {
+    @apply absolute h-6 w-20;
+    background: var(--tape);
+  }
+  .seat {
+    @apply block h-[11px] w-[11px] rounded-full;
+    border: 1.6px solid var(--ink-soft);
+  }
+  .seat-on {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+}

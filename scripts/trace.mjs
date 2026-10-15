@@ -1,0 +1,18 @@
+import { chromium } from "playwright";
+import fs from "fs";
+const browser = await chromium.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe" });
+const ctx = await browser.newContext({ viewport: { width: 412, height: 823 }, deviceScaleFactor: 1.75, isMobile: true });
+const page = await ctx.newPage();
+const cdp = await ctx.newCDPSession(page);
+await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+await browser.startTracing(page, { path: "reports/trace.json", categories: ["devtools.timeline", "blink.user_timing"] });
+await page.goto(process.env.URL || "http://localhost:3000", { waitUntil: "load" });
+await page.waitForTimeout(4000);
+await browser.stopTracing();
+await browser.close();
+const ev = JSON.parse(fs.readFileSync("reports/trace.json")).traceEvents.filter((e) => e.ph === "X" && e.dur);
+const sum = {};
+for (const e of ev) if (["Layout", "UpdateLayoutTree", "Paint", "ParseHTML", "EvaluateScript", "FunctionCall", "TimerFire", "FireAnimationFrame", "Layerize", "PrePaint", "ParseAuthorStyleSheet", "RecalculateStyles"].includes(e.name)) (sum[e.name] ??= [0, 0]), (sum[e.name][0] += e.dur / 1000), sum[e.name][1]++;
+console.log(sum);
+const top = ev.filter((e) => ["Layout", "UpdateLayoutTree"].includes(e.name)).sort((a, b) => b.dur - a.dur).slice(0, 6);
+for (const e of top) console.log(e.name, Math.round(e.dur / 1000), "ms", JSON.stringify(e.args?.beginData || e.args?.data || {}).slice(0, 160));
